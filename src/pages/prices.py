@@ -1,7 +1,6 @@
 from dash import Dash, html, dcc, dash_table, callback
 import plotly.graph_objs as go
 from datetime import datetime, timedelta
-import locale
 import dash_bootstrap_components as dbc
 from dash.dependencies import Input, Output
 import plotly.express as px
@@ -94,13 +93,6 @@ tarjetas_precios = dbc.Row([
     dbc.Col(dbc.Card([dbc.CardBody([html.H5("Precio más alto del día", className="card-title"), html.P("", className="card-text", id="precio-alto"), html.P("", className="card-text", id="hora-precio-alto")])]), width=3),
 ], className="mb-4")
 
-# Aquí podrías definir tus figuras de Plotly para los precios
-try:
-    locale.setlocale(locale.LC_TIME, 'es_ES.UTF-8')  # O 'spanish' en Windows
-except locale.Error:
-    locale.setlocale(locale.LC_TIME, 'es')  # Intento genérico si el específico falla
-
-
 
 # Configura el DatePickerSingle
 date_picker = dcc.DatePickerSingle(
@@ -147,7 +139,7 @@ def update_price_table(date):
         print("La columna 'datetime' no se encuentra en el DataFrame.")
         return [], []
     # Convierte las columnas a tipos de datos correctos si es necesario
-    df_precio_luz['datetime'] = pd.to_datetime(df_precio_luz['datetime'])
+    df_precio_luz['datetime'] = pd.to_datetime(df_precio_luz['datetime']).dt.tz_convert(pytz.FixedOffset(60))
     df_precio_luz['Precio'] = df_precio_luz['value'].astype(float)
     
     # Calcula los percentiles para el día seleccionado
