@@ -208,7 +208,7 @@ def update_price_graph(date):
         ))
 
     # Obtener la fecha y hora actual
-    now = datetime.now()
+    now = datetime.now(pytz.timezone("Europe/Madrid")).replace(minute=0, second=0, microsecond=0)
     fecha_actual = datetime.strptime(date, '%Y-%m-%d')
     fecha_actual_con_hora_actual = datetime.combine(fecha_actual, now.time())
 
