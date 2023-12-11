@@ -12,35 +12,7 @@ dash.register_page(__name__)
 # Aquí podrías definir tus figuras de Plotly para el análisis de componentes
 # Este es solo un ejemplo vacío
 def download_ree(indicador,fecha_inicio,fecha_fin,time_trunc='day'):
-    """
-    Descarga datos desde apidatos.ree.es entre dos fechas determinadas 
-    
-    Parameters
-    ----------
-    
-    indicador : str
-        Texto con el indicador del end point del que queremo bajar la información
-        
-    fecha_inicio : str
-        Fecha con formato %Y-%M-%d, que indica la fecha desde la que se quiere bajar los datos.
-        Ejemplo 2022-10-30, 30 Octubre de 2022.
-    
-    fecha_fin : str
-        Fecha con formato %Y-%M-%d, que indica la fecha hasta la que se quiere bajar los datos.
-        Ejemplo 2022-10-30, 30 Octubre de 2022.
-        
-    time_trunc : str, optional
-        Campo adicional que nos permite elegir la granularidad de los datos que queremos bajar.
-        Hour, Day, Month...dependiendo del end point se aplicará o no esta orden
-        
-    Returns
-    -------
-    DataFrame
-        Dataframe de pandas con los datos solicitados
-    
-    """
-    
-    
+   
     headers = {'Accept': 'application/json',
                'Content-Type': 'applic<ation/json',
                'Host': 'apidatos.ree.es'}
@@ -59,34 +31,6 @@ def download_ree(indicador,fecha_inicio,fecha_fin,time_trunc='day'):
                                    meta=['type',['attributes','type' ]], 
                                    errors='ignore')
 def download_esios(indicadores, fecha_inicio, fecha_fin,time_trunc='day'):
-    """
-    Descarga datos esios desde un determinado identidficador y entre dos fechas
-    
-    Parameters
-    ----------
-    token : str
-        El token de esios necesario para realizar las llamadas al API
-    
-    indicadores : list
-        Lista con los strings de los indicadores de los que queremos bajar datos
-        
-    fecha_inicio : str
-        Fecha con formato %Y-%M-%d, que indica la fecha desde la que se quiere bajar los datos.
-        Ejemplo 2022-10-30, 30 Octubre de 2022.
-    
-    fecha_fin : str
-        Fecha con formato %Y-%M-%d, que indica la fecha hasta la que se quiere bajar los datos.
-        Ejemplo 2022-10-30, 30 Octubre de 2022.
-        
-    time_trunc : str, optional
-        Campo adicional que nos permite elegir la granularidad de los datos que queremos bajar.
-        
-    Returns
-    -------
-    DataFrame
-        Dataframe de pandas con los datos solicitados
-    
-    """
     
     # preparamos la cabecera a insertar en la llamada. Vease la necesidad de disponer el token de esios
     
@@ -121,6 +65,7 @@ def download_esios(indicadores, fecha_inicio, fecha_fin,time_trunc='day'):
     return pd.concat(lista, ignore_index=True )
 
 def descargar_datos_precio_luz(fecha_inicio, fecha_fin, lang='es'):
+    
     indicador = 'mercados/precios-mercados-tiempo-real'
     time_trunc = 'hour'
 
@@ -163,9 +108,7 @@ def calcular_porcentaje_renovables(start_date, end_date):
                   .drop(['attributes.type', 'datetime'], axis=1)
                   .rename(columns={'value': 'valor', 'type': 'tipo', 'value': 'generacion'})
                   [['fecha', 'tipo', 'generacion', 'percentage']]
-                 )
-    # Lista de fuentes de energía renovable
-    
+                 )   
 
     # Filtrar datos de fuentes renovables y calcular el total por fecha
     datos_renovables = datos[datos['tipo'].isin(renewable_sources)]
@@ -202,7 +145,13 @@ layout = html.Div([
     ),
     dcc.Graph(id='generation-graph'),
     dcc.Graph(id='price-graph'),
+    html.P([
+        "Vemos el impacto de las Energías Renovables en el precio de la electricidad, donde se puede apreciar una correlacion negativa. Esto nos da entender que el uso de Energías Renovables puede contribuir a precios más bajos."
+        ]),
     dcc.Graph(id='my-plotly-graph'),
+    html.P([
+        "La gráfica muestra la demanda eléctrica y cómo disminuye significativamente los fines de semana, reflejando menor actividad industrial y comercial. Existe una correlación evidente entre la demanda y los precios: altas demandas suelen elevar los precios, mientras que los fines de semana, con demandas más bajas, los precios tienden a caer. Este patrón es clave para entender y prever los cambios en los precios de la electricidad."
+        ]),
     dcc.Graph(id='correlation-graph')
 
 ])

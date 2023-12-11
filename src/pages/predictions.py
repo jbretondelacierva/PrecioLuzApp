@@ -19,9 +19,7 @@ dash.register_page(__name__)
 api_key = '7f1ac9e2a6deeea5fbf2dbb18d570a7e'
 
 def obtener_datos_meteorologicos(latitud, longitud, api_key):
-    """
-    Obtiene datos meteorológicos por hora para una ubicación específica.
-    """
+
     base_url = "https://api.openweathermap.org/data/2.5/onecall"
     params = {
         'lat': latitud,
@@ -39,17 +37,7 @@ def obtener_datos_meteorologicos(latitud, longitud, api_key):
         print(f"Error en la solicitud: {response.status_code}")
         return pd.DataFrame()
 def descargar_datos_precio_luz(start_date, end_date, lang='es'):
-    """
-    Descarga datos de precios de la electricidad desde apidatos.ree.es.
 
-    Args:
-    fecha_inicio (str): Fecha de inicio en formato 'YYYY-MM-DD'.
-    fecha_fin (str): Fecha de fin en formato 'YYYY-MM-DD'.
-    lang (str): Idioma de la respuesta ('es' para español, 'en' para inglés).
-
-    Returns:
-    DataFrame: Un DataFrame de pandas con los datos del precio de la electricidad.
-    """
     indicador = 'mercados/precios-mercados-tiempo-real'
     time_trunc = 'hour'  # Cambiado de 'day' a 'hour' según el error recibido
 
@@ -70,6 +58,7 @@ def descargar_datos_precio_luz(start_date, end_date, lang='es'):
         print(f"Error en la solicitud: {response.status_code}")
         return pd.DataFrame()  # Devuelve un DataFrame vacío en caso de error
 def descargar_datos_mensuales(fecha_inicio, fecha_fin):
+    
     precios_mensuales = pd.DataFrame()
     while fecha_inicio < fecha_fin:
         # Asegúrate de que el período de solicitud no exceda 31 días

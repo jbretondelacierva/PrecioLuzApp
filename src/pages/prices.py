@@ -15,6 +15,7 @@ import requests
 import pandas as pd
 
 def descargar_datos_precio_luz(fecha_inicio, fecha_fin, lang='es'):
+    
     indicador = 'mercados/precios-mercados-tiempo-real'
     time_trunc = 'hour'
 
@@ -44,6 +45,7 @@ def descargar_datos_precio_luz(fecha_inicio, fecha_fin, lang='es'):
 
 
 def calcular_precios(date):
+    
     # Descargar datos de precios de la luz para el día seleccionado
     df_precio_luz = descargar_datos_precio_luz(date, date)
 
