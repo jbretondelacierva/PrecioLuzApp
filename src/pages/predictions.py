@@ -152,6 +152,10 @@ try:
     # Combinar los datos de entrenamiento y las predicciones
     df_combinado = pd.concat([df_combinado, futuro])
 
+except Exception as e:
+    print(e)
+
+try:
     futuro_RN = predicciones_tiempo.copy()
     futuro_para_prediccion_RN = futuro_RN.drop('datetime', axis=1)
     modelo = load('modelo_redes_neuronales.joblib')
@@ -174,8 +178,6 @@ try:
 
 except Exception as e:
     print(e)
-
-
 
 preciosProphet = descargar_datos_mensuales(datetime.now() - timedelta(days=90), fecha_fin)
 preciosProphet['datetime'] = pd.to_datetime(preciosProphet['datetime'], utc=True)
