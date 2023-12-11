@@ -158,7 +158,9 @@ except Exception as e:
 try:
     futuro_RN = predicciones_tiempo.copy()
     futuro_para_prediccion_RN = futuro_RN.drop('datetime', axis=1)
+    print("molo")
     modelo = load('modelo_redes_neuronales.joblib')
+    print("adioas")
     y_pred = modelo.predict(futuro_para_prediccion_RN)
     print(y_pred)
     # Convertir las predicciones a un DataFrame
