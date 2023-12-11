@@ -133,43 +133,49 @@ fecha_inicio = fecha_fin - timedelta(days=3)
 
 # Descarga los datos en segmentos mensuales
 precios = descargar_datos_mensuales(fecha_inicio, fecha_fin)
-precios_copia = precios
-precios_copia['datetime'] = pd.to_datetime(precios['datetime'], utc=True)
-
+df_combinado = precios.copy()
+df_combinado['datetime'] = pd.to_datetime(precios['datetime'], utc=True)
+df_combinado['tipo'] = 'Entrenamiento'
 futuro = predicciones_tiempo.copy()
 futuro_para_prediccion = futuro.drop('datetime', axis=1)
 
-model = load('modelo_regresion_lineal.joblib')
 
-predicciones = model.predict(futuro_para_prediccion)
-futuro['value'] = predicciones
+try:
+    model = load('modelo_regresion_lineal.joblib')
 
-# Añadir una columna para identificar los datos de entrenamiento y las predicciones
-precios_copia['tipo'] = 'Entrenamiento'
-futuro['tipo'] = 'Predicción'
+    predicciones = model.predict(futuro_para_prediccion)
+    futuro['value'] = predicciones
 
-# Combinar los datos de entrenamiento y las predicciones
-df_combinado = pd.concat([precios_copia, futuro])
+    # Añadir una columna para identificar los datos de entrenamiento y las predicciones
+    futuro['tipo'] = 'Predicción'
 
-futuro_RN = predicciones_tiempo.copy()
-futuro_para_prediccion_RN = futuro_RN.drop('datetime', axis=1)
-modelo = load('modelo_redes_neuronales.joblib')
-y_pred = modelo.predict(futuro_para_prediccion_RN)
+    # Combinar los datos de entrenamiento y las predicciones
+    df_combinado = pd.concat([df_combinado, futuro])
 
-# Convertir las predicciones a un DataFrame
-predicciones_df = pd.DataFrame(y_pred, columns=['Predicción'])
+    futuro_RN = predicciones_tiempo.copy()
+    futuro_para_prediccion_RN = futuro_RN.drop('datetime', axis=1)
+    modelo = load('modelo_redes_neuronales.joblib')
+    y_pred = modelo.predict(futuro_para_prediccion_RN)
 
-# Asegurarse de que el DataFrame 'futuro_RN' tenga el mismo número de filas que 'predicciones_df'
-futuro_RN_RN = futuro_RN.reset_index(drop=True)[:len(predicciones_df)]
+    # Convertir las predicciones a un DataFrame
+    predicciones_df = pd.DataFrame(y_pred, columns=['Predicción'])
 
-# Añadir las predicciones al DataFrame 'futuro_RN'
-futuro_RN['value'] = predicciones_df['Predicción']
+    # Asegurarse de que el DataFrame 'futuro_RN' tenga el mismo número de filas que 'predicciones_df'
+    futuro_RN_RN = futuro_RN.reset_index(drop=True)[:len(predicciones_df)]
 
-# Asumiendo que 'datos_entrenamiento' es tu DataFrame original con las columnas 'datetime' y 'value'
-futuro_RN['tipo'] = 'Predicción_RN'
+    # Añadir las predicciones al DataFrame 'futuro_RN'
+    futuro_RN['value'] = predicciones_df['Predicción']
 
-# Combinar los datos de entrenamiento y las predicciones
-df_combinado = pd.concat([df_combinado, futuro_RN[['datetime', 'value', 'tipo']]])
+    # Asumiendo que 'datos_entrenamiento' es tu DataFrame original con las columnas 'datetime' y 'value'
+    futuro_RN['tipo'] = 'Predicción_RN'
+
+    # Combinar los datos de entrenamiento y las predicciones
+    df_combinado = pd.concat([df_combinado, futuro_RN[['datetime', 'value', 'tipo']]])
+
+except Exception as e:
+    print(e)
+
+
 
 preciosProphet = descargar_datos_mensuales(datetime.now() - timedelta(days=90), fecha_fin)
 preciosProphet['datetime'] = pd.to_datetime(preciosProphet['datetime'], utc=True)
@@ -183,10 +189,14 @@ modelo_prophet.fit(df_prophet)
 
 # Crear DataFrame futuro para las predicciones
 futuro_prophet = modelo_prophet.make_future_dataframe(periods=48, freq='H')
-ultimo_valor_datetime = futuro_RN['datetime'].iloc[-1]
-futuro_prophet = futuro_prophet[futuro_prophet['ds'] <= ultimo_valor_datetime]
-ultimo_valor_datetime= futuro_RN['datetime'].iloc[0]
-futuro_prophet = futuro_prophet[ futuro_prophet['ds'] >= ultimo_valor_datetime]  # Asegúrate de que solo contenga fechas futuras
+try:
+    ultimo_valor_datetime = futuro_RN['datetime'].iloc[-1]
+    futuro_prophet = futuro_prophet[futuro_prophet['ds'] <= ultimo_valor_datetime]
+    ultimo_valor_datetime= futuro_RN['datetime'].iloc[0]
+    futuro_prophet = futuro_prophet[ futuro_prophet['ds'] >= ultimo_valor_datetime]  # Asegúrate de que solo contenga fechas futuras
+except Exception as e:
+    print(e)
+
 # Realizar predicciones
 predicciones_prophet = modelo_prophet.predict(futuro_prophet)
 
