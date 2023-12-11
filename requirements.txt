@@ -9,3 +9,4 @@ gunicorn
 dash-tools
 plotly
 tensorflow
+prophet
