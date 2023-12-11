@@ -1,8 +1,6 @@
 from dash import Dash, html, dcc, dash_table, callback
 import plotly.graph_objs as go
 from datetime import datetime, timedelta
-import locale
-import dash_bootstrap_components as dbc
 from dash.dependencies import Input, Output
 import plotly.express as px
 import requests
@@ -175,8 +173,6 @@ def calcular_porcentaje_renovables(start_date, end_date):
 
     print(renewable_sources)
     return total_renovable
-
-
 
 
 

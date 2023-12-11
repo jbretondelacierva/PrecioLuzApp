@@ -59,7 +59,6 @@ def descargar_datos_precio_luz(start_date, end_date, lang='es'):
     }
 
     url = f'https://apidatos.ree.es/{lang}/datos/{indicador}?start_date={start_date}T00:00&end_date={end_date}T23:59&time_trunc={time_trunc}'
-    print(url)
     response = requests.get(url, headers=headers)
 
     if response.status_code == 200:
@@ -159,22 +158,16 @@ except Exception as e:
 try:
     futuro_RN = predicciones_tiempo.copy()
     futuro_para_prediccion_RN = futuro_RN.drop('datetime', axis=1)
-    print("molo")
-    #modelo = load('modelo_redes_neuronales.joblib')
     json_file = open("modeloRN.json", 'r')
     loaded_model_json = json_file.read()
     json_file.close()
     modelo = model_from_json(loaded_model_json)
     modelo.load_weights("modeloRN.h5")
-    print("adioas")
     y_pred = modelo.predict(futuro_para_prediccion_RN)
-    print(y_pred)
     # Convertir las predicciones a un DataFrame
     predicciones_df = pd.DataFrame(y_pred, columns=['Predicción'])
-    print("holaaa0")
     # Asegurarse de que el DataFrame 'futuro_RN' tenga el mismo número de filas que 'predicciones_df'
     futuro_RN_RN = futuro_RN.reset_index(drop=True)[:len(predicciones_df)]
-    print("holaaa")
     # Añadir las predicciones al DataFrame 'futuro_RN'
     futuro_RN['value'] = predicciones_df['Predicción']
 
@@ -186,7 +179,6 @@ try:
 
 except Exception as e:
     print(e)
-    print("porque me pasan estas cosas")
 
 preciosProphet = descargar_datos_mensuales(datetime.now() - timedelta(days=90), fecha_fin)
 preciosProphet['datetime'] = pd.to_datetime(preciosProphet['datetime'], utc=True)
@@ -231,16 +223,16 @@ layout = html.Div([
     dcc.Graph(id='grafico_predicciones', style={'height': '600px'}),  # Aumentar altura de la gráfica
         # Descripción de los modelos y la lógica de las variables
         html.P([
-            "En el desarrollo de mis modelos de predicción de precios, he priorizado datos temporales como la hora y el día de la semana, clave para comprender los patrones de consumo energético. Las previsiones meteorológicas han sido esenciales, influenciando directamente en la generación y demanda de energía. Este enfoque me ha permitido afinar las predicciones, maximizando su relevancia y precisión."
+            "En el desarrollo de mis modelos de predicción de precios, he priorizado datos temporales como la hora y el día de la semana, clave para comprender los patrones de consumo energético. Las previsiones meteorológicas han sido esenciales, influyendo directamente en la generación y demanda de energía. Este enfoque me ha permitido afinar las predicciones, maximizando su relevancia y precisión."
         ]),
         html.P([
             "La integración de datos meteorológicos de diversas localidades españolas, tales como Burgos, Segovia, A Coruña, Teruel, entre otras, ha aportado un análisis detallado y representativo de las condiciones climáticas del país. Este análisis se ha limitado intencionalmente a los últimos 90 días para enfocarse en tendencias recientes y minimizar la distorsión por variaciones estacionales históricas."
         ]),
         html.P([
-            "Una faceta interesante de mi trabajo ha sido experimentar con precios rezagados de 2, 3 y 7 días, aunque los resultados mostraron mejoras marginales. Esto se debe, en parte, a que un lag ideal sería cercano a una hora, cosa que no era posible ya que mis predicciones eran de dos dias(tambien por las predicciones meteorologicas). Asi mismo, el modelo Prophet, solo lo aplico a predicciones de dos días, para poder compararlo bien con los otros modelos, no arrastrar errores, balanceando precisión y velocidad, especialmente crucial para interfaces web. El modelo ARIMA, aunque profundo en su análisis, fue descartado por su prolongado tiempo de procesamiento."
+            "Una faceta interesante de mi trabajo ha sido experimentar con precios rezagados de 2, 3 y 7 días, aunque los resultados mostraron mejoras marginales. Esto se debe, en parte, a que un lag ideal sería cercano a una hora, cosa que no era posible ya que mis predicciones eran de dos días (también por las predicciones meteorológicas). Asimismo, el modelo Prophet, solo lo aplico a predicciones de dos días, para poder compararlo bien con los otros modelos, no arrastrar errores, balanceando precisión y velocidad, especialmente crucial para interfaces web. El modelo ARIMA, aunque profundo en su análisis, fue descartado por su prolongado tiempo de procesamiento."
         ]),
         html.P([
-            "El modelo fallara mas durante eventos atípicos, como los días festivos, donde se observan cambios significativos en la demanda y precios de la energía."
+            "El modelo puede que falle más durante eventos atípicos, como los días festivos, donde se observan cambios significativos en la demanda y precios de la energía."
         ], style={'marginBottom': '20px', 'marginTop': '20px'})
 ])
 ########################

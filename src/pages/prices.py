@@ -1,6 +1,6 @@
 from dash import Dash, html, dcc, dash_table, callback
 import plotly.graph_objs as go
-from datetime import datetime, timedelta
+from datetime import datetime
 import dash_bootstrap_components as dbc
 from dash.dependencies import Input, Output
 import plotly.express as px

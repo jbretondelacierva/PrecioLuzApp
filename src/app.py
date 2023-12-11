@@ -32,7 +32,7 @@ app.layout = dbc.Container([
     navbar,
     html.Div(
         dash.page_container,
-        style={'margin': '50px'}  # Ajusta el valor del margen según tus necesidades
+        style={'margin': '50px'}  
     )], fluid=True)
 
 @app.callback(
