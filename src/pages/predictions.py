@@ -142,7 +142,7 @@ futuro_para_prediccion = futuro.drop('datetime', axis=1)
 
 
 try:
-    model = load('src/modelo_regresion_lineal.joblib')
+    model = load('modelo_regresion_lineal.joblib')
 
     predicciones = model.predict(futuro_para_prediccion)
     futuro['value'] = predicciones
@@ -161,11 +161,11 @@ try:
     futuro_para_prediccion_RN = futuro_RN.drop('datetime', axis=1)
     print("molo")
     #modelo = load('modelo_redes_neuronales.joblib')
-    json_file = open("src/modeloRN.json", 'r')
+    json_file = open("modeloRN.json", 'r')
     loaded_model_json = json_file.read()
     json_file.close()
     modelo = model_from_json(loaded_model_json)
-    modelo.load_weights("src/modeloRN.h5")
+    modelo.load_weights("modeloRN.h5")
     print("adioas")
     y_pred = modelo.predict(futuro_para_prediccion_RN)
     print(y_pred)
