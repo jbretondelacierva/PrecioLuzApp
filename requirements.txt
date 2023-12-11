@@ -10,3 +10,4 @@ dash-tools
 plotly
 prophet
 keras
+tensorflow
