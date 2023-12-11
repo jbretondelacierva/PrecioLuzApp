@@ -8,6 +8,7 @@ import plotly.express as px
 import requests
 import pandas as pd
 import dash
+import plotly.figure_factory as ff
 
 dash.register_page(__name__)
 # Aquí podrías definir tus figuras de Plotly para el análisis de componentes
@@ -175,6 +176,10 @@ def calcular_porcentaje_renovables(start_date, end_date):
     print(renewable_sources)
     return total_renovable
 
+
+
+
+
 # Añadir DatePickerRange, Dropdown y Graph al layout
 layout = html.Div([
     html.H1('Análisis de Componentes', style={'textAlign': 'center'}),
@@ -201,7 +206,8 @@ layout = html.Div([
     ),
     dcc.Graph(id='generation-graph'),
     dcc.Graph(id='price-graph'),
-    dcc.Graph(id='my-plotly-graph')
+    dcc.Graph(id='my-plotly-graph'),
+    dcc.Graph(id='correlation-graph')
 
 ])
 
@@ -355,5 +361,52 @@ def update_my_plotly_graph(start_date, end_date):
                 fillcolor="LightGray", opacity=0.4,
                 layer="below", line_width=0,
             )
+
+    return fig
+
+@callback(
+    Output('correlation-graph', 'figure'),
+    [Input('date-picker-range', 'start_date'),
+     Input('date-picker-range', 'end_date')]
+)
+def update_correlation_graph(start_date, end_date):
+    # Descargar y procesar datos de generación
+    raw = download_ree('generacion/estructura-generacion', start_date, end_date)
+    generacion = (raw
+                  .assign(fecha=lambda df_: pd.to_datetime(df_['datetime'], utc=True)
+                          .dt.tz_convert('Europe/Madrid')
+                          .dt.tz_localize(None))
+                  .drop(['attributes.type', 'datetime'], axis=1)
+                  .rename(columns={'value': 'generacion', 'type': 'tipo'})
+                  [['fecha', 'tipo', 'generacion']]
+                 )
+    generacion_pivot = generacion.pivot_table(index='fecha', columns='tipo', values='generacion', aggfunc='sum').reset_index()
+
+    # Descargar y procesar datos del precio de la luz
+    datos_precio_luz = descargar_datos_precio_luz(start_date, end_date)
+    datos_precio_luz['fecha'] = pd.to_datetime(datos_precio_luz['datetime']).dt.date
+    precio_medio_diario = datos_precio_luz.groupby('fecha')['value'].mean().reset_index()
+    generacion_pivot.reset_index(drop=True, inplace=True)
+    generacion_pivot.drop(columns='Generación total', inplace=True)
+    generacion_pivot['fecha'] = pd.to_datetime(generacion_pivot['fecha']).dt.date
+    # Fusionar los datos de generación con los datos del precio de la luz
+    datos_combinados = pd.merge(generacion_pivot, precio_medio_diario, on='fecha')
+    # Calcular la correlación
+    correlacion = datos_combinados.corr()
+
+    # Crear una tabla de correlación con Plotly
+    fig = ff.create_annotated_heatmap(
+        z=correlacion.values,
+        x=correlacion.columns.tolist(),
+        y=correlacion.index.tolist(),
+        annotation_text=correlacion.round(2).values,
+        colorscale='Viridis'
+    )
+    fig.update_layout(
+        title_text='Correlación entre Tipos de Generación de Energía y Precio Medio Diario de la Luz(en el intervalo seleccionado)',
+        xaxis=dict(tickangle=-45),
+        yaxis=dict(ticks=''),
+        font=dict(color='black')
+    )
 
     return fig
