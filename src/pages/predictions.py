@@ -160,13 +160,13 @@ try:
     futuro_para_prediccion_RN = futuro_RN.drop('datetime', axis=1)
     modelo = load('modelo_redes_neuronales.joblib')
     y_pred = modelo.predict(futuro_para_prediccion_RN)
-
+    print(y_pred)
     # Convertir las predicciones a un DataFrame
     predicciones_df = pd.DataFrame(y_pred, columns=['Predicción'])
-
+    print("holaaa0")
     # Asegurarse de que el DataFrame 'futuro_RN' tenga el mismo número de filas que 'predicciones_df'
     futuro_RN_RN = futuro_RN.reset_index(drop=True)[:len(predicciones_df)]
-
+    print("holaaa")
     # Añadir las predicciones al DataFrame 'futuro_RN'
     futuro_RN['value'] = predicciones_df['Predicción']
 
@@ -178,6 +178,7 @@ try:
 
 except Exception as e:
     print(e)
+    print("porque me pasan estas cosas")
 
 preciosProphet = descargar_datos_mensuales(datetime.now() - timedelta(days=90), fecha_fin)
 preciosProphet['datetime'] = pd.to_datetime(preciosProphet['datetime'], utc=True)
