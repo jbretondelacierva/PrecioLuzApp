@@ -8,5 +8,4 @@ scikit_learn
 gunicorn
 dash-tools
 plotly
-tensorflow
 prophet

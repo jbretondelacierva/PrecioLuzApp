@@ -11,6 +11,7 @@ import dash
 import dash
 from joblib import load
 from prophet import Prophet
+from sklearn.preprocessing import StandardScaler
 
 dash.register_page(__name__)
 
@@ -152,7 +153,6 @@ df_combinado = pd.concat([precios_copia, futuro])
 
 futuro_RN = predicciones_tiempo.copy()
 futuro_para_prediccion_RN = futuro_RN.drop('datetime', axis=1)
-from sklearn.preprocessing import StandardScaler
 modelo = load('modelo_redes_neuronales.joblib')
 y_pred = modelo.predict(futuro_para_prediccion_RN)
 
