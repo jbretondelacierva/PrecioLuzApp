@@ -12,6 +12,7 @@ import dash
 from joblib import load
 from prophet import Prophet
 from sklearn.preprocessing import StandardScaler
+from keras.models import model_from_json
 
 dash.register_page(__name__)
 
@@ -159,7 +160,12 @@ try:
     futuro_RN = predicciones_tiempo.copy()
     futuro_para_prediccion_RN = futuro_RN.drop('datetime', axis=1)
     print("molo")
-    modelo = load('modelo_redes_neuronales.joblib')
+    #modelo = load('modelo_redes_neuronales.joblib')
+    json_file = open("modelo_redes_neuronales.json", 'r')
+    loaded_model_json = json_file.read()
+    json_file.close()
+    modelo = model_from_json(loaded_model_json)
+    modelo.load_weights("modelo_redes_neuronales.h5")
     print("adioas")
     y_pred = modelo.predict(futuro_para_prediccion_RN)
     print(y_pred)
